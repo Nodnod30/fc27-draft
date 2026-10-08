@@ -9,7 +9,7 @@ let players=[],all=[],type='Club',pool=[],featured=[],shop=[],weekKey='',weekly,
 const limits={pool:48,owned:48,db:48};
 const save=()=>{try{localStorage.setItem('fc27-v1',JSON.stringify(state))}catch{toast('浏览器未允许保存；当前进度仅本次有效')}};
 function toast(s){$('toast').textContent=s;$('toast').style.opacity=1;clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>$('toast').style.opacity=0,3000)}
-function week(){const now=new Date(Date.now()+8*3600000);now.setUTCHours(0,0,0,0);now.setUTCDate(now.getUTCDate()-(now.getUTCDay()+6)%7);return now.toISOString().slice(0,10)}
+function week(){const now=new Date(Date.now()+8*3600000);now.setUTCHours(0,0,0,0);now.setUTCDate(now.getUTCDate()-(now.getUTCDay()+6)%7);const key=now.toISOString().slice(0,10);return key==='2026-10-05'?key+'-r2':key}
 function hash(s){let n=2166136261;for(const c of s)n=Math.imul(n^c.charCodeAt(0),16777619);return n>>>0}
 function shuffle(a,seed){a=[...a];let x=seed||1;for(let i=a.length-1;i>0;i--){x=(Math.imul(x,1664525)+1013904223)>>>0;const j=x%(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 function eligible(a){return [5,6,7].every(r=>a.some(p=>p.stars===r))}
@@ -28,7 +28,7 @@ function rotate(){
   Permanent:{title:'常驻 / 全明星招募',desc:'完整男足 Gold 卡池 · 全部球员 · 无精选大保底',theme:players,pool:players}
  };
  shop=shuffle(players.filter(p=>p.stars===7),seed+39).slice(0,8).sort(FC.scoreSort);
- $('week').textContent=weekKey+' 本周精选 · 周一更新';setType(type);renderShop();
+ $('week').textContent=weekKey.slice(0,10)+(weekKey.endsWith('-r2')?' · 10月8日测试更新':'')+' 本周精选 · 周一更新';setType(type);renderShop();
 }
 function card(p,status='',action=''){
  return `<div class="cardwrap" data-score="${p.score}"><div class="card r${p.stars}"><div class="cardtop"><span class="score">${p.score}</span><span class="pos">${esc(p.position)}</span></div><div class="portrait"><span class="initials">${esc(p.name.split(' ').map(n=>n[0]).slice(0,2).join(''))}</span>${p.image?`<img loading="lazy" src="${esc(p.image)}" alt="${esc(p.name)}" onerror="this.remove()">`:''}</div><div class="name" title="${esc(p.name)}">${esc(p.name)}</div><div class="club" title="${esc(p.club)}">${esc(p.club)}</div><div class="nationality">${esc(p.nationality)}</div><div class="stars">${'★'.repeat(p.stars)}</div><div class="stats"><span>能力 <b>${p.overall}</b></span><span>潜力 <b>${p.potential}</b></span></div></div>${status?`<div class="status">${esc(status)}</div>`:''}${action}</div>`;
